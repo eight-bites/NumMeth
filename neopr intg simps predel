@@ -1,0 +1,42 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import math
+
+def f(x):
+    return   math.exp(-x**2)
+    # math.exp(-x**2)
+    #x*(math.exp**(-x**2))
+    #1 / 3**x
+    #1 / (2**x)
+
+def simpson_method(a, b, f):
+    """Метод Симпсона для вычисления интеграла на текущем отрезке."""
+    h = b - a
+    return (f(a) + 4*f((a+b)/2) + f(b)) * h / 6
+
+def adaptive_simpson_integral(a, b, f, epsilon, max_depth=10):
+    """Вычисляет интеграл методом Симпсона с адаптивным разбиением."""
+    def integrate(a, b, fa, fmid, fb, epsilon, depth):
+        # вычисляем значения метода Симпсона на текущем отрезке
+        integral = simpson_method(a, b, f)
+
+        # Если интеграл на текущем отрезке меньше epsilon^2, выходим из рекурсии
+        if abs(integral) < epsilon**2 or depth >= max_depth:
+            return integral
+
+        # Делим отрезок пополам
+        c = (a + b) / 2
+
+        # Вызываем функцию рекурсивно для каждой половины
+        left_integral = integrate(a, c, fa, f((a+c)/2), fmid, epsilon, depth + 1)
+        right_integral = integrate(c, b, fmid, f((c+b)/2), fb, epsilon, depth + 1)
+
+        return left_integral + right_integral
+
+    fmid = f((a + b) / 2)
+    return integrate(a, b, f(a), fmid, f(b), epsilon, 0)
+
+# Вычисление интеграла с помощью нашего метода Симпсона
+epsilon = 0.0001
+result = adaptive_simpson_integral(0, 10, f, epsilon)
+print("Значение интеграла методом Симпсона от 0 до +бесконечности = ", result)
